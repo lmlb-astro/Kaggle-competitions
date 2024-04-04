@@ -2,62 +2,94 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.keras.layers import Flatten
 
-class ConvModel():
-    ## initialize the UNet
-    def __init__(self):
-        ## build UNet for a given number (T) of time steps
-        self.model = self.build_model()
-    
-    ## The first block with two convolutional layers
-    def block1(self, x, filters = 4, kernel_size = (3, 3), strides = (1, 1)):
+
+## Class for Block1
+class ConvBlock(tf.keras.layers.Layer):
+    def __init__(self, num_filters  = 4, kernel_size = (3, 3), strides = (1, 1)):
+        ## initialize the parent class
+        super().__init__()
+
+        ## initialize the two convolutional layers
+        self.conv1 = tf.keras.layers.Conv2D(filters = num_filters, kernel_size = kernel_size, strides = strides, padding = 'SAME', activation = 'relu')
+        self.conv2 = tf.keras.layers.Conv2D(filters = num_filters, kernel_size = kernel_size, strides = strides, padding = 'SAME', activation = 'relu')
+
+
+    ## Call block1 
+    def call(self, inputs):
         ## perform the first convolutional layer
-        conv1 = tf.keras.layers.Conv2D(filters = filters, kernel_size = kernel_size, strides = strides, padding = 'SAME', activation = 'relu')(x)
+        x = self.conv1(inputs)
+
+        ## perform the first convolutional layer
+        x = self.conv2(x)
+        return x
+
+
+######################################################
+
+
+## Class for the downsample (DB) block
+class DB(tf.keras.layers.Layer):
+    def __init__(self, pool_size = (2, 1), filters = 4):
+        ## initialize the parent class
+        super().__init__()
+
+        ## initialize the max_pooling and the ConvBlock
+        self.m_pool = tf.keras.layers.MaxPool2D(pool_size = pool_size)
+        self.block1 = ConvBlock(num_filters = filters)
+
+    ## call the downsample block (DB)
+    def call(self, inputs):
+        x = self.m_pool(inputs)
+        return self.block1(x)
+
+
+######################################################
+
+
+## class for the convolutional model
+class ConvModel(tf.keras.Model):
+    ## initialize the ConvModel
+    def __init__(self, input_shape = (28, 28, 1), filters = 4, kernel_size = (3, 3), strides = (1, 1)):
+        ## initialize the parent class
+        super().__init__()
         
-        ## return the second convolutional layer
-        return tf.keras.layers.Conv2D(filters = filters, kernel_size = kernel_size, strides = strides, padding = 'SAME', activation = 'relu')(conv1)
+        ## Initiate the ConvModel
+        ## first conv_block
+        self.block1 = ConvBlock()
+
+        ## downsample blocks
+        self.db1 = DB()
+        self.db2 = DB()
+
+        ## flatten
+        self.flatten = Flatten(dtype='float32')
+
+        ## dense layers
+        self.d1 = tf.keras.layers.Dense(256, activation="relu")
+        self.d2 = tf.keras.layers.Dense(64, activation="relu")
+        self.d3 = tf.keras.layers.Dense(32, activation="relu")
+        
+        self.dense_final = tf.keras.layers.Dense(10, activation="softmax")
 
     
-    ## The downsample block (DB) of the model
-    def DB(self, x, pool_size = (2, 1), filters = 4):
-        ## max pool the data
-        pooled_x = tf.keras.layers.MaxPool2D(pool_size = pool_size)(x)
+    ## call the model
+    def call(self, inputs):
+        ## conv block
+        x = self.block1(inputs)
 
-        ## return the double convolutional layer (i.e. block1) on the pooled weights
-        return self.block1(pooled_x, filters = filters)
+        ## downsample blocks
+        x = self.db1(x)
+        x = self.db2(x)
+        
+        ## flatten
+        x = self.flatten(x)
 
-    ## get the model
-    def get_model(self):
-        return self.model
-    
-    ## function to build the model
-    def build_model(self):
-        ## add the input layer
-        inputs = tf.keras.Input(shape = (28, 28, 1))
-
-        ## add the first convolutional block
-        b1 = self.block1(inputs)
-
-        ## add dropout
-        drop = tf.keras.layers.Dropout(0.1)(b1)
-
-        ## add the first downsample (DB) block
-        db1 = self.DB(drop) 
-        db2 = self.DB(db1)
-
-        ## flatten the model
-        flatten = Flatten(dtype='float32')
-        fl = flatten(db2)
-        print(fl.shape)
-
-        ## add a few dense layers
-        l1 = tf.keras.layers.Dense(256, activation="relu")(fl)
-        l2 = tf.keras.layers.Dense(64, activation="relu")(l1)
-        l3 = tf.keras.layers.Dense(32, activation="relu")(l2)
-
-        outputs = tf.keras.layers.Dense(10, activation="softmax")(l3)
-
-        return tf.keras.Model(inputs = inputs, outputs = outputs)
-
+        ## dense layers
+        x = self.d1(x)
+        x = self.d2(x)
+        x = self.d3(x)
+        
+        return self.dense_final(x)
 
 
 
