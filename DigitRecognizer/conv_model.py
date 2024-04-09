@@ -106,7 +106,6 @@ class ConvModel(tf.keras.Model):
         
         ## flatten
         x = self.flatten(x)
-        print(x.shape)
 
         ## dense layers
         #x = self.d1(x)
