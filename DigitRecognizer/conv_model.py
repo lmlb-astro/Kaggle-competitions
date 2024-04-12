@@ -57,28 +57,28 @@ class DB(tf.keras.layers.Layer):
 ## class for the convolutional model
 class ConvModel(tf.keras.Model):
     ## initialize the ConvModel
-    def __init__(self, filters = [24, 16, 8], conv_layer = 'Conv2D', drop_rate = 0.2, kernel_size = (3, 3)):
+    def __init__(self, filters = [24, 16], conv_layer = 'Conv2D', drop_rate = 0.2, kernel_size = (3, 3)):
         ## initialize the parent class
         super(ConvModel, self).__init__()
 
         ## Verify that the input for conv_layer is valid
         assert conv_layer == 'Conv2D' or conv_layer == 'TSConv', "Invalid argument, conv_layer only takes arguments Conv2D or TSConv"
         self.input_layer = tf.keras.layers.InputLayer(input_shape = (28, 28, 1))
-
-        ## The dropout layer with custom rate
-        self.drop = tf.keras.layers.Dropout(drop_rate)
         
         ## Convolutional and downsample blocks
         self.block1 = ConvBlock(filters = filters[0], conv_layer = conv_layer, kernel_size = kernel_size)
         self.db1 = DB(filters = filters[1], conv_layer = conv_layer, kernel_size = kernel_size)
-        self.db2 = DB(filters = filters[2], conv_layer = conv_layer, kernel_size = kernel_size)
-        #self.mp2d = tf.keras.layers.MaxPool2D()
+        self.mp2d = tf.keras.layers.MaxPool2D()
 
         ## flatten
         self.flatten = Flatten(dtype='float32')
 
         ## dense layers
         self.d1 = tf.keras.layers.Dense(256, activation="relu")
+
+        ## The dropout layer with custom rate
+        self.drop1 = tf.keras.layers.Dropout(drop_rate)
+        self.drop2 = tf.keras.layers.Dropout(drop_rate)
         
         self.dense_final = tf.keras.layers.Dense(10, activation="softmax")
         
@@ -88,21 +88,21 @@ class ConvModel(tf.keras.Model):
 
         ## get the inputs
         inputs = self.input_layer(inputs)
-
-        ## perform dropout
-        x = self.drop(inputs)
         
         ## convolutional and downsample blocks
-        x = self.block1(x)
+        x = self.block1(inputs)
         x = self.db1(x)
-        x = self.db2(x)
-        #x = self.mp2d(x)
+        x = self.mp2d(x)
+        x = self.drop1(x)
         
         ## flatten
         x = self.flatten(x)
 
         ## dense layers
         x = self.d1(x)
+
+        ## perform dropout
+        x = self.drop2(x)
         
         return self.dense_final(x)
 
