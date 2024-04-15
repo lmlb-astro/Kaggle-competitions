@@ -22,11 +22,17 @@ class ConvBlock(tf.keras.layers.Layer):
             self.conv1 = tsconv.TSConv(filters = filters)
             self.conv2 = tsconv.TSConv(filters = filters)
 
+        ## add the batch normalization layer
+        self.batch_norm1 = tf.keras.layers.BatchNormalization()
+
 
     ## Call the convolutional block (ConvBlock) 
     def call(self, inputs):
         ## perform the first convolutional layer
         x = self.conv1(inputs)
+
+        ## perform the normalization
+        x = self.batch_norm1(x)
 
         ## perform the second convolutional layer
         return self.conv2(x)
