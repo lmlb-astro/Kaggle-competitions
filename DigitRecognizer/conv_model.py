@@ -15,8 +15,8 @@ class ConvBlock(tf.keras.layers.Layer):
         assert conv_layer == 'Conv2D' or conv_layer == 'TSConv', "Invalid argument, conv_layer only takes arguments Conv2D or TSConv"
 
         ## initialize the two convolutional layers
-        self.conv1 = tf.keras.layers.Conv2D(filters = filters, kernel_size = kernel_size, strides = (1, 1), padding = 'SAME', activation = 'relu')
-        self.conv2 = tf.keras.layers.Conv2D(filters = filters, kernel_size = kernel_size, strides = (1, 1), padding = 'SAME', activation = 'relu')
+        self.conv1 = tf.keras.layers.Conv2D(filters = filters, kernel_size = kernel_size, strides = (1, 1), padding = 'SAME', activation = 'relu', use_bias = False)
+        self.conv2 = tf.keras.layers.Conv2D(filters = filters, kernel_size = kernel_size, strides = (1, 1), padding = 'SAME', activation = 'relu', use_bias = False)
         ## initialize as time-shift convolutional layer instead when specified
         if(conv_layer == 'TSConv'):
             self.conv1 = tsconv.TSConv(filters = filters)
