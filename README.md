@@ -1,3 +1,3 @@
 Currently contains:
-- Titanic exercise: Combines a Gaussian Mixture Model and Random Forest reaching an accuracy of 78.5% (top 15% on the leaderboard at the time of submission).
-- Digit recognizer exercise: Employs multiple CNN, MaxPooling & Normalization layers on the MNIST to reach an accuracy > 99% (top 20% on the leaderboard at the time of submission).
+- Titanic exercise: First runs a Gaussian Mixture Model on the 'Age' and logarithm of the 'Fare' data. Combined with additional categorical data, this information is passed through a Random Forest to predict the survivors and reaches an accuracy of 78.5% (This reached the top 15% on the leaderboard at the time of submission).
+- Digit recognizer exercise: Employs multiple CNN, MaxPooling & Normalization layers on the MNIST data set to reach an accuracy > 99% when it comes to predicting the written digit (This reached the top 20% on the leaderboard at the time of submission).
