@@ -23,6 +23,9 @@ class ResBlock(tf.keras.layers.Layer):
         ## add the ReLu layers
         self.relu1 = tf.keras.layers.ReLU()
         self.relu2 = tf.keras.layers.ReLU()
+
+        ## add the elementwise addition layer to define the residual block
+        self.add_layer = tf.keras.layers.Add()
     
 
     
@@ -37,8 +40,8 @@ class ResBlock(tf.keras.layers.Layer):
         x = self.conv2(x)
         x = self.batch_norm2(x)
 
-        ## return the output of the residual block
-        return self.relu2(inputs + x)
+        ## return the output of the residual block after element-wise addition
+        return self.relu2(self.add_layer([inputs, x]))
 
         
         
