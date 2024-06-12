@@ -79,7 +79,7 @@ class ConvModel(tf.keras.Model):
 
         ## Verify that the input for conv_layer is valid
         assert conv_layer == 'Conv2D' or conv_layer == 'TSConv', "Invalid argument, conv_layer only takes arguments Conv2D or TSConv"
-        self.input_layer = tf.keras.layers.InputLayer(input_shape = (28, 28, 1))
+        #self.input_layer = tf.keras.layers.InputLayer(input_shape = (28, 28, 1))
         
         ## Convolutional and downsample blocks
         self.block1 = ConvBlock(filters = filters[0], conv_layer = conv_layer, kernel_size = kernel_size)
@@ -103,7 +103,7 @@ class ConvModel(tf.keras.Model):
     def call(self, inputs):
 
         ## get the inputs
-        inputs = self.input_layer(inputs)
+        #inputs = self.input_layer(inputs)
         
         ## convolutional and downsample blocks
         x = self.block1(inputs)
@@ -131,7 +131,7 @@ class ResModel(tf.keras.Model):
         super(ResModel, self).__init__()
 
         ## add the input layer
-        self.input_layer = tf.keras.layers.InputLayer(input_shape = (28, 28, 1))
+        #self.input_layer = tf.keras.layers.InputLayer(input_shape = (28, 28, 1))
         
         ## The first convolutional, the residual and max pool blocks
         self.conv1 = tf.keras.layers.Conv2D(filters = filters[0], kernel_size = kernel_size, strides = (1, 1), padding = 'SAME')
@@ -158,7 +158,7 @@ class ResModel(tf.keras.Model):
     def call(self, inputs):
 
         ## get the inputs
-        inputs = self.input_layer(inputs)
+        #inputs = self.input_layer(inputs)
 
         ## first convolutional layer and batch normalization
         x = self.conv1(inputs)
@@ -191,7 +191,7 @@ class ResModelLarge(tf.keras.Model):
         super().__init__()
 
         ## add the input layer
-        self.input_layer = tf.keras.layers.InputLayer(input_shape = (28, 28, 1))
+        #self.input_layer = tf.keras.layers.InputLayer(input_shape = (28, 28, 1))
         
         ## The first convolutional, the residual and max pool blocks
         self.conv1 = tf.keras.layers.Conv2D(filters = filters[0], kernel_size = kernel_size, strides = (1, 1), padding = 'SAME')
@@ -222,7 +222,7 @@ class ResModelLarge(tf.keras.Model):
     def call(self, inputs):
 
         ## get the inputs
-        inputs = self.input_layer(inputs)
+        #inputs = self.input_layer(inputs)
 
         ## first convolutional layer and batch normalization
         x = self.conv1(inputs)
